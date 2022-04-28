@@ -1,5 +1,6 @@
 package com.crawlcomment.service.impl;
 
+import com.crawlcomment.config.CommentType;
 import com.crawlcomment.dto.CommentInfoDto;
 import com.crawlcomment.dto.ResponseJSON;
 import com.crawlcomment.dto.SnippetCommentDto;
@@ -20,6 +21,7 @@ import com.google.api.services.youtube.model.CommentThreadListResponse;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,7 +47,12 @@ public class YoutubeCrawlerCommentImpl implements YoutubeCrawlerComment {
      */
     public Credential authorize(final NetHttpTransport httpTransport) throws IOException {
         // Load client secrets.
-        InputStream in = YoutubeCrawlerMain.class.getResourceAsStream(CLIENT_SECRETS);
+//        System.out.println(CLIENT_SECRETS);
+        String initialString = "{\"installed\":{\"client_id\":\"525499905849-tipq75cbuvlcv5r4t6misd6lrdlclb5r.apps.googleusercontent.com\",\"project_id\":\"youtube-crawlercomment\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_secret\":\"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\",\"redirect_uris\":[\"http://localhost\"]}}";
+        InputStream in = new ByteArrayInputStream(initialString.getBytes());
+
+//        InputStream in = YoutubeCrawlerMain.class.getResourceAsStream(CLIENT_SECRETS);
+//        System.out.println(in);
         GoogleClientSecrets clientSecrets =
                 GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
         // Build flow and trigger user authorization request.
@@ -128,7 +135,7 @@ public class YoutubeCrawlerCommentImpl implements YoutubeCrawlerComment {
             SnippetCommentDto snippetCommentDto = gson.fromJson(secondSnippetString, new TypeToken<SnippetCommentDto>() {
             }.getType());
 
-            dto.setType("MAIN_COMMENT");
+            dto.setType(CommentType.MAIN_COMMENT.toString());
             dto.setAuthor(snippetCommentDto.getAuthorDisplayName());
             dto.setAuthorChannelUrl(snippetCommentDto.getAuthorChannelUrl());
             dto.setTotalLikeCount(snippetCommentDto.getLikeCount());
@@ -155,7 +162,7 @@ public class YoutubeCrawlerCommentImpl implements YoutubeCrawlerComment {
                         }.getType());
 
                         CommentInfoDto replyCommentDto = new CommentInfoDto();
-                        replyCommentDto.setType("COMMENT_REPLY");
+                        replyCommentDto.setType(CommentType.COMMENT_REPLY.toString());
                         replyCommentDto.setTotalReplyCount(0L);
                         replyCommentDto.setAuthor(replydto.getAuthorDisplayName());
                         replyCommentDto.setAuthorChannelUrl(replydto.getAuthorChannelUrl());

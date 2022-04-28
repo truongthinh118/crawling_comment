@@ -13,23 +13,40 @@ import com.crawlcomment.service.impl.YoutubeCrawlerCommentImpl;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
 public class YoutubeCrawlerMain {
+
     public static void main(String[] args)
             throws GeneralSecurityException, IOException, GoogleJsonResponseException {
-        StopWatch w = new StopWatch();
-        w.start();
+
+        Scanner sc = new Scanner(System.in);
+
+        StopWatch crawlTime = new StopWatch();
+        StopWatch exportTime = new StopWatch();
+
 //        Get Comment from Youtube By Call Google Api
+
+        System.out.print("Video ID: ");
+        String videoID = sc.next();
+        crawlTime.start();
         YoutubeCrawlerComment youtubeCrawler = new YoutubeCrawlerCommentImpl();
-        List<CommentInfoDto> commentList = youtubeCrawler.crawlCommentYoutube("F8jsrN7h0-c");
+        List<CommentInfoDto> commentList = youtubeCrawler.crawlCommentYoutube(videoID);
+        System.out.println("Crawl Time: " + crawlTime.getTime());
+
 //        Export DataList to Excel File
+        System.out.print("Path to export: ");
+        String pathToExport = sc.next();
+
+        exportTime.start();
         ExportTableExcelService service = new ExportTableExcelServiceImpl();
-        service.writeExcel(commentList, "/home/truongthinh/Projects/CHUYỆN XÓM TUI PHẦN 2.xlsx",
-                "FULL 3 TẬP");
-        System.out.println("Total times " + w.getTime());
+        service.writeExcel(commentList, pathToExport, "Crawl Result");
+        System.out.println("Export Time: " + exportTime.getTime());
+
     }
 }
